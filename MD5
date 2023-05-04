@@ -1,0 +1,16 @@
+113176bb8975ae21aa76797eab955a4f *DESCRIPTION
+f3a18dfeb91fb883466d5e6570406948 *NAMESPACE
+831be95693fbedababc0c14c07f0f936 *NEWS.md
+09d46a2bc86360776a839b96528fbd11 *R/gdi.r
+a66ac6ac73253dfe2343013fcc9fa4a5 *build/vignette.rds
+3252bdc84bc795a7340dbc5613d9c81d *inst/doc/gdi.R
+355a59b068e740dda758d6283b1502be *inst/doc/gdi.Rmd
+29380fb035d52ae58137c977d3ccfc0a *inst/doc/gdi.html
+bde8972529e166d686a3d0c5012c3f28 *inst/exdata/cross_section.png
+ae8ae639dcc224292380c1df18aceb88 *inst/exdata/dors.png
+915637dbe9acf25e67c86ca03d2afb37 *inst/exdata/lat.png
+364c143d9d0f0e51ed83218464897c5e *man/cscorr.Rd
+950a7ae51a4b39c10f5ea094033e53ad *man/gdi.Rd
+5bda89f71358dea99a8c052089c325eb *man/measuresil.Rd
+a3d82362c9b415fd138a0f3ff0f93c24 *man/sellipse.Rd
+355a59b068e740dda758d6283b1502be *vignettes/gdi.Rmd

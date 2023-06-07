@@ -24,17 +24,40 @@ sellipse <- function(a, b, k) {
   return(area)
 }
 
+##Function sellipse.coo()
+#'calculate coordinates for plotting a superellipse for visualizing body cross-sections
+#'
+#' @param k superellipse exponent.
+#' @param res the desired resolution
+#' @return a data frame containing 
+#' @export sellipse.coo
+#' @examples
+#' sellipse.coo(2.0)->df #get coordinates for normal ellipse (exponent k=2)
+#' plot(df$x,df$y,col="black", type="l") #plot normal ellipse
+#' sellipse.coo(2.3)->df2 # get coordinates for superellipse with exponent 2.3
+#' lines(df$x,df$y, col="blue") #plot superellipse
+
+sellipse.coo <- function(k, res=100) {
+  t <- seq(0, 2 * pi, length.out = res)
+  x <- abs(cos(t))^(2 / k) * sign(cos(t))
+  y <- abs(sin(t))^(2 / k) * sign(sin(t))
+  
+  df <- data.frame(x = x, y = y)
+  return(df)
+}
+
+
 ##Function cscorr()
 #'Measure and analyze cross-sectional geometry
 #'
 #' @param image_file Image to be read. Images can be jpeg or png files, or a previously read image saved as an object in R.
 #' @param threshold Reference value for colour criterium after which pixels that are part of the cross-section are differentiated from the background.
 #' @param channel Colour channel to which to apply the threshold criterium. Default is 4 (alpha channel of rgba image). Channel setting needs to be adjusted depending on the colour mode of the image used (e.g. there are two channels to choose from in a greyscale image, and 3 in an rgb image).
-#' @param method Method for determining which pixels to count. Default "greater" counts pixels with value greater than threshold (e.g. higher opacity, in the case of an alpha channel). "less" counts pixels with a value less than the threshold. Any other character string results in only pixels exactly matching the value given as threshold being counted.
+#' @param method Method for determining which pixels to count. Default "greater" counts pixels with value greater than threshold (e.g. higher opacity, in the case of an alpha channel). "less" counts pixels with a value less than the threshold. "not" counts all pixels not precisely matching threshold. Any other character string results in only pixels exactly matching the value given as threshold being counted.
 #' @param return What value to return. Possible values are "area_corr" (Default, returns ratio between measured area and area of ellipse with same horizontal and vertical diameters), "aspect_ratio" (returns aspect ratio), "diameters" (returns diameters) and "area" (returns area). Any other value for this parameter will prompt the function to return a vector containing all of these.
 #' @param k optional superellipse exponent for the (super)ellipse to which the measurements should be compared (for the "area_corr" setting for the parameter return).
 #' @param scale Optional scale of the image (for raw area measurements).
-#' @return A single number, either the ratio between the measured cross-sectional area and that of an ellipse with the same vertical and horizontal diameters, or the measured area (if compare==FALSE).
+#' @return Either a numeric of length 1 (depending on the input of the return parameter), defaulting to the area correction factor (if return=="area_corr"), or (if return is left empty or does not match any of the predefined settings) a numeric vector of length 5 containing all the possible outputs (x and y diameters, aspect ratio, area and area correction factor).
 #' @import jpeg
 #' @import png
 #' @export cscorr
@@ -67,11 +90,13 @@ for(x in 1:ncols){
     d <- union(d,which(img[,x,channel]>threshold))
     }else if(method=="less"){
     d <- union(d,which(img[,x,channel]<threshold))
+    }else if(method=="not"){
+    d <- union(d,which(signif(img[,x,channel],6)!=signif(threshold,6)))
     }else{
-    d <- union(d,which(img[,x,channel]==threshold))
+    d <- union(d,which(signif(img[,x,channel],6)==signif(threshold,6)))
     }
 }
-vdiam <- length(d) #calculate maximum depth in pixels
+vdiam <- length(d)/scale #calculate maximum depth in pixels
 
 ##find maximum width of cross-section
 d <- numeric(0)
@@ -81,23 +106,27 @@ for(y in 1:nrows){
     d <- union(d,which(img[y,,channel]>threshold))
     }else if(method=="less"){
     d <- union(d,which(img[y,,channel]<threshold))
+    }else if(method=="not"){
+    d <- union( d,which( signif(img[y,,channel],6)!=signif(threshold,6)) )
     }else{
-    d <- union(d,which(img[y,,channel]==threshold))
+    d <- union( d,which( signif(img[y,,channel],6)==signif(threshold,6)) )
     }
 }
-hdiam <- length(d) #calculate maximum width in pixels
+hdiam <- length(d)/scale #calculate maximum width in pixels
 
 
 # calculate (super)elliptical cross-sectional area:
-ecomp <- sellipse(vdiam/2/scale, hdiam/2/scale, k)
+ecomp <- sellipse(vdiam/2, hdiam/2, k)
 
 # calculate actual cross-sectional area
     if(method=="greater"){
-    area <- sum(img[,,channel]>threshold)/scale^2
-    } else if(method=="less"){
-    area <- sum(img[,,channel]<threshold)/scale^2
+    area <- sum(img[,,channel]>threshold)
+    }else if(method=="less"){
+    area <- sum(img[,,channel]<threshold)
+    }else if(method=="not"){
+    area <- sum( signif(img[,,channel],6)!=signif(threshold,6) )
     }else{
-    area <- sum(img[,,channel]==threshold)/scale^2
+    area <- sum( signif(img[,,channel],6)==signif(threshold,6) )
     }
   
   # Return the calculated area or ratio
@@ -121,7 +150,7 @@ ecomp <- sellipse(vdiam/2/scale, hdiam/2/scale, k)
 #' @param image_file Image to be read. Images can be jpeg or png files, or a previously read image saved as an object in R.
 #' @param threshold Reference value for colour criterium after which pixels that are part of the silhouette are differentiated from the background.
 #' @param channel Colour channel to which to apply the threshold criterium. Default is 4 (alpha channel of rgba image). Channel setting needs to be adjusted depending on the colour mode of the image used (e.g. there are two channels to choose from in a greyscale image, and 3 in an rgb image).
-#' @param method Method for determining which pixels to count. Default "greater" counts pixels with value greater than threshold (e.g. higher opacity, in the case of an alpha channel). "less" counts pixels with a value less than the threshold. Any other character string results in only pixels exactly matching the value given as threshold being counted.
+#' @param method Method for determining which pixels to count. Default "greater" counts pixels with value greater than threshold (e.g. higher opacity, in the case of an alpha channel). "less" counts pixels with a value less than the threshold. "not" counts all pixels not precisely matching threshold. Any other character string results in only pixels exactly matching the value given as threshold being counted.
 #' @import jpeg
 #' @import png
 #' @export measuresil
@@ -161,8 +190,12 @@ for (x in 1:ncols) {
     if (color < threshold) {
       depth <- depth + 1
     }
+    }else if(method=="not"){
+    if (signif(color,6) != signif(threshold,6)) {
+      depth <- depth + 1
+    }
     }else{
-    if (color == threshold) {
+    if (signif(color,6) == signif(threshold,6)) {
       depth <- depth + 1
     }}}
     
@@ -186,7 +219,7 @@ return(depths)
 #' @param corr Correction factor for area of cross-sections, calculated as the ratio between the actual cross-sectional area and that of a (super)ellipse (depending on the specified exponent k) with the same diameters. This setting enables the function to account for complex, non-elliptical cross-sections. Default value is 1, i.e. no correction. Can be either a single number, or a numeric vector of the same length as lat and dors (in the case of a changing cross-sectional geometry along the length of the body).
 #' @param smooth.ends If method != "raw", specify whether first and last segments should be left raw, or taper to 0 (i.e. be approximated as cones). Only applies if there are no leading or following zeros in the measurement vectors.
 #' @param return Determines whether to report the estimated total volume (if default/"total"), or a data.frame with segment radii, areas and volumes (if left empty of any other character string.
-#' @return Either a single number representing the total volume estimated, or (if return!="total") a data.frame() containing columns with the radii in both dimensions, the estimated elliptical or superelliptical areas, and the segment volumes.
+#' @return Either a single number representing the total volume estimated (with names indicating the horizontal length of the silhouette in the unit determined by scale), or (if return!="total") a data.frame() containing columns with the radii in both dimensions, the estimated elliptical or superelliptical areas, and the segment volumes.
 #' @export gdi
 #' @examples
 #' lateral <- rep(2,4) #generate example data
@@ -224,9 +257,141 @@ if(method=="raw"){
 sil$V <- sil$V*corr
 
 sum(sil$V)->res#sum up segments
+names(res) <- paste("x_dim",sum(lat!=0)/scale, "units", sep="_")
 
 if(return=="total"){
 return(res)
 }else{
 return(sil)}
+}
+
+
+
+
+
+##Function fdetect()
+#'Tool to help determine which threshold value and method to use with measuresil() or cscorr(). The function analyzes all pixels along the edges of the image to determine the background colour, to help with deciding on appropriate settings and avoid errors introduced by inappropriate settings
+#'
+#' @param image_file Image to be read. Images can be jpeg or png files, or a previously read image saved as an object in R.
+#' @param threshold Reference value for colour criterium after which pixels that are part of the silhouette should be differentiated from the background.
+#' @param channel Colour channel to which to apply the threshold criterium. Default is 4 (alpha channel of rgba image). Channel setting needs to be adjusted depending on the colour mode of the image used (e.g. there are two channels to choose from in a greyscale image, and 3 in an rgb image).
+#' @param plot Whether to plot a histogram with the detected colour values (if TRUE) or not (if FALSE, default).
+#' @return A list()-object containing: $edgetable (a table of the different colour values detected and their respective frequencies), $histogram (a histogram-object of the colour values), $most_common (the most common colour value found), $foreground (a character string, indicating whether the foreground colour value is likely "greater" or "less" than the specified threshold), $result (a character string giving a summary of the results)
+#' @export fdetect
+#' @importFrom graphics hist
+#' @importFrom graphics rug
+#' @examples
+#' fdir <- system.file(package="gdi")
+#' fdetect(file.path(fdir,"exdata","lat.png"))
+
+
+
+
+fdetect<-function(image_file, threshold=0.5, channel=4, plot=FALSE){
+if(grepl(".jpg",image_file)==TRUE | grepl(".jpeg",image_file)==TRUE | grepl(".JPG",image_file)==TRUE){
+img <- jpeg::readJPEG(image_file)}#read image if it is jpg
+
+if(grepl(".png",image_file)==TRUE | grepl(".PNG",image_file)==TRUE){
+img <- png::readPNG(image_file)}#read image if it is png
+
+if(!is.character(image_file)){
+img<-image_file
+}
+
+nrows <- dim(img)[1]
+ncols <- dim(img)[2]
+
+#extract picture edges:
+edges <- c(img[1,,channel],img[nrows,,channel],img[,1,channel],img[,ncols,channel])
+
+out <- list()
+out$edgetable <- table(edges)
+out$histogram <- hist(edges, breaks=seq(0,1,0.05), plot=FALSE)
+
+out$most_common <- signif(as.numeric(names(which.max(out$edgetable))),7)
+
+
+#guess correct setting for method parameter in gdi()
+if(out$most_common<threshold){
+out$foreground <- "greater"
+}else if(out$most_common>threshold){
+out$foreground <- "less"
+}else{
+out$foreground <- NA
+warning("Automatic background detection failed, please manually ascertain which colour value corresponds to the foreground of your silhouette!")
+}
+
+#show histogram
+if(plot==TRUE){
+hist(edges, breaks=seq(0,1,0.05), xlab=paste("Edge pixel colour values in channel", channel))
+rug(edges)
+}
+out$result <- paste("Best guess is that the foreground has a channel", channel, "value", out$foreground, "than", threshold, "(background appears to be", out$most_common,")")
+return(out)
+
+} 
+
+
+
+
+##Function imghist()
+#'Simple histogram analysis for all colour values in an input image. Can be used to help assess whether a chosen threshold value is appropriate for differentiating the silhouette from the background, or for general.
+#'
+#' @param image_file Image to be read. Images can be jpeg or png files, or a previously read image saved as an object in R.
+#' @param threshold Reference value for colour criterium after which pixels that are part of the silhouette should be differentiated from the background.
+#' @param channel Colour channel to which to apply the threshold criterium. Default is 4 (alpha channel of rgba image). Channel setting needs to be adjusted depending on the colour mode of the image used (e.g. there are two channels to choose from in a greyscale image, and 3 in an rgb image).
+#' @param breaks A vector of breaks for the histogram, defaults to a bin width of 0.05 between colour values of 0 and 1.
+#' @param plot Whether to plot a histogram, defaults to TRUE
+#' @param unique Whether to return counts for unique colour values, defaults to FALSE.
+#' @return A plotted histogram (unless plot==FALSE), and a matrix containing the counts from the histogram (default) or the counts for unique colour values (if unique==TRUE).
+#' @export imghist
+#' @importFrom graphics abline
+#' @importFrom graphics hist
+#' @importFrom graphics rug
+#' @importFrom graphics lines
+#' @importFrom stats density
+#' @examples
+#' fdir <- system.file(package="gdi")
+#' imghist(file.path(fdir,"exdata","lat.png"))
+
+
+imghist <- function(image_file, threshold=0.5, channel=4, breaks=seq(0,1,0.05), plot=TRUE, unique=FALSE){
+if(grepl(".jpg",image_file)==TRUE | grepl(".jpeg",image_file)==TRUE | grepl(".JPG",image_file)==TRUE){
+img <- jpeg::readJPEG(image_file)}#read image if it is jpg
+
+if(grepl(".png",image_file)==TRUE | grepl(".PNG",image_file)==TRUE){
+img <- png::readPNG(image_file)}#read image if it is png
+
+if(!is.character(image_file)){
+img<-image_file
+}
+
+
+if(plot==TRUE){#show histogram
+hist(img[,,channel], prob=TRUE, breaks=breaks, xlab=paste("All pixel colour values in channel", channel))
+lines(density(img[,,channel]), col="grey", lwd=2)
+abline(v=threshold)}
+
+total <- length(img[,,channel])
+
+if(unique==FALSE){
+h <- hist(img[,,channel], breaks=breaks, plot=FALSE)
+names<-h$mids
+h <- h$counts
+h <- cbind(h,h/total)
+rownames(h) <- names
+colnames(h) <- c("count","proportion")
+return(h)
+}
+
+if(unique==TRUE){
+counts <- table(img[,,channel])
+sorted <- sort(counts, decreasing=TRUE)
+names <- names(sorted)
+sorted <- cbind(sorted, sorted/total)
+rownames(sorted)<-names
+colnames(sorted) <- c("count","proportion")
+return(sorted)
+}
+
 }

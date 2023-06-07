@@ -21,7 +21,7 @@ cscorr(
 
 \item{channel}{Colour channel to which to apply the threshold criterium. Default is 4 (alpha channel of rgba image). Channel setting needs to be adjusted depending on the colour mode of the image used (e.g. there are two channels to choose from in a greyscale image, and 3 in an rgb image).}
 
-\item{method}{Method for determining which pixels to count. Default "greater" counts pixels with value greater than threshold (e.g. higher opacity, in the case of an alpha channel). "less" counts pixels with a value less than the threshold. Any other character string results in only pixels exactly matching the value given as threshold being counted.}
+\item{method}{Method for determining which pixels to count. Default "greater" counts pixels with value greater than threshold (e.g. higher opacity, in the case of an alpha channel). "less" counts pixels with a value less than the threshold. "not" counts all pixels not precisely matching threshold. Any other character string results in only pixels exactly matching the value given as threshold being counted.}
 
 \item{return}{What value to return. Possible values are "area_corr" (Default, returns ratio between measured area and area of ellipse with same horizontal and vertical diameters), "aspect_ratio" (returns aspect ratio), "diameters" (returns diameters) and "area" (returns area). Any other value for this parameter will prompt the function to return a vector containing all of these.}
 
@@ -30,7 +30,7 @@ cscorr(
 \item{scale}{Optional scale of the image (for raw area measurements).}
 }
 \value{
-A single number, either the ratio between the measured cross-sectional area and that of an ellipse with the same vertical and horizontal diameters, or the measured area (if compare==FALSE).
+Either a numeric of length 1 (depending on the input of the return parameter), defaulting to the area correction factor (if return=="area_corr"), or (if return is left empty or does not match any of the predefined settings) a numeric vector of length 5 containing all the possible outputs (x and y diameters, aspect ratio, area and area correction factor).
 }
 \description{
 Measure and analyze cross-sectional geometry

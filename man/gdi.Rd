@@ -7,6 +7,7 @@
 gdi(
   lat,
   dors,
+  indices = NULL,
   scale = 10,
   sliceL = 1/scale,
   method = "raw",
@@ -17,9 +18,11 @@ gdi(
 )
 }
 \arguments{
-\item{lat}{Measurements of diameter in lateral view/first of two orthogonal views to be used with the gdi. Can be either a numeric vector, or a text file to be scanned. Defaults to "lat.txt".}
+\item{lat}{Measurements of diameter in lateral view/first of two orthogonal views to be used with the gdi. Can be either a numeric vector, a data.frame (output of measuresil(...,return="all") with a collumn named "diameter", or a text file with diameter measurements to be scanned.}
 
-\item{dors}{Measurements of diameter in dorsal view/second of two orthogonal views to be used with the gdi. Can be either a numeric vector, or a text file to be scanned. Must be the same length as lat. Defaults to "dors.txt".}
+\item{dors}{Measurements of diameter in dorsal view/second of two orthogonal views to be used with the gdi. Can be either a numeric vector, a data.frame (output of measuresil(...,return="all") with a collumn named "diameter", or a text file with diameter measurements to be scanned. Must be the same length as lat.}
+
+\item{indices}{Optional indices specifying a subset of the silhouette measurement vectors to be analyzed. Useful if separate segment calculations are desired.}
 
 \item{scale}{Scale of the data in terms of how many units of the input data are in one side of the desired unit of output volume. Defaults to 10.}
 
@@ -33,7 +36,7 @@ gdi(
 
 \item{smooth.ends}{If method != "raw", specify whether first and last segments should be left raw, or taper to 0 (i.e. be approximated as cones). Only applies if there are no leading or following zeros in the measurement vectors.}
 
-\item{return}{Determines whether to report the estimated total volume (if default/"total"), or a data.frame with segment radii, areas and volumes (if left empty of any other character string.}
+\item{return}{Determines whether to report the estimated total volume (if default/"total"), or a data.frame() with segment radii, areas and volumes (if left empty of any other character string.}
 }
 \value{
 Either a single number representing the total volume estimated (with names indicating the horizontal length of the silhouette in the unit determined by scale), or (if return!="total") a data.frame() containing columns with the radii in both dimensions, the estimated elliptical or superelliptical areas, and the segment volumes.

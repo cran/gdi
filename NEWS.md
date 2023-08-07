@@ -1,3 +1,41 @@
+gdi v1.4.1 (Release date: 2023-07-28)
+==============
+
+Changes:
+* modifications to image-processing functions to deal with single-channel images
+
+
+gdi v1.4.0 (Release date: 2023-07-28)
+==============
+
+Changes:
+* added functions vCOM and hCOM and expanded functionality of measuresil() and gdi() to allow estimating the position of the center of mass (COM)
+* added function plot_sil() to plot silhouettes
+
+
+
+gdi v1.3.1 (Release date: 2023-07-22)
+==============
+
+Changes:
+* added parameter setting indices for gdi(), allowing to specify optional indices to specify a subset of the measurement vectors
+
+
+gdi v1.3.0 (Release date: 2023-06-12)
+==============
+
+Changes:
+* added parameter setting alignment for measuresil(), allowing the optional use of vertically aligned silhouettes if align!="h"
+* updated unit tests to check that scale works correctly
+
+
+gdi v1.2.3 (Release date: 2023-06-12)
+==============
+
+Changes:
+* fixed cscorr() area output scaling (previous version didn’t set the scale for area resulting in unscaled area output even when scale is set)
+
+
 gdi v1.2.2 (Release date: 2023-06-07)
 ==============
 
@@ -9,7 +47,7 @@ gdi v1.2.1 (Release date: 2023-05-05)
 
 Changes:
 * added tests using package 'testthat'
-* gdi() now also reports the horizontal length of the silhouette as name of output (in the same unit cubed to calculate volume, i.e. decimetres if volume is metres), intended to quickly spot scaling errors
+* gdi() now also reports the horizontal length of the silhouette as name of output (in the same unit cubed to calculate volume, i.e. decimeters if volume is intended in liters), intended to quickly spot scaling errors
 
 gdi v1.2.0 (Release date: 2023-05-04)
 ==============

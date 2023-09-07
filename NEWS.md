@@ -1,3 +1,47 @@
+gdi v1.5.4 (Release date: 2023-09-06)
+==============
+
+Changes:
+* added new tests and vignette
+
+
+gdi v1.5.3 (Release date: 2023-08-25)
+==============
+
+Changes:
+* added collumn with x axis centroids to output of gdi(), for use in rotI() and hCOM() functions
+
+gdi v1.5.2 (Release date: 2023-08-24)
+==============
+
+Changes:
+* generalized rotI() function to calculate rotational inertia of shapes around any axis
+* added function to cscorr to allow calculation of correction factors for moment of inertia.
+* fixed issue in input to functions (rejection of previously read images supplied as matrix or array)
+
+
+gdi v1.5.1 (Release date: 2023-08-23)
+==============
+
+Changes:
+* added rotI() function to calculate rotational inertia of shapes
+
+
+gdi v1.5.0 (Release date: 2023-08-19)
+==============
+
+Changes:
+* added csI() function to calculate second moment of area for cross-sectional shapes
+
+
+
+gdi v1.4.2 (Release date: 2023-08-08)
+==============
+
+Changes:
+* fixed bug in cscorr (returning inverse aspect ratios depending on settings) – now aspect ratio is always max horizontal diameter/max vertical diameter
+
+
 gdi v1.4.1 (Release date: 2023-07-28)
 ==============
 
